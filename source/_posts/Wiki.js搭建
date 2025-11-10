@@ -1,0 +1,46 @@
+---
+title: wiki.js搭建
+date: 2025年11月10日 时:分:秒
+tags: [cloudflare, hexo, markdown]
+categories: [技术分享]
+---
+services:
+  database:
+    image: amd64/postgres:17  # 使用较新版本的PostgreSQL
+    environment:
+      POSTGRES_DB: wiki
+      POSTGRES_PASSWORD: Rjk@12345  # 请务必修改为强密码
+      POSTGRES_USER: wikijs
+    volumes:
+      - db_data:/var/data/postgresql/data  # 数据持久化
+    restart: unless-stopped
+    networks:
+      - wiki-network
+
+  wiki:
+    image: requarks/wiki:canary-2.5.0-dev.411  # 使用":2"标签获取2.x系列最新版，或使用具体版本号如"2.11.0"
+    depends_on:
+      - database
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USER: wikijs
+      DB_PASS: Rjk@12345  # 与上方数据库密码保持一致
+      DB_NAME: wiki
+    volumes:
+      - wiki_data:/wiki/data  # 持久化Wiki内容，如图片和日志
+      - wiki_logs:/wiki/logs
+    restart: unless-stopped
+    networks:
+      - wiki-network
+    ports:
+      - "80:3000"  # 将主机3000端口映射到容器
+
+volumes:
+  db_data:
+  wiki_data:
+  wiki_logs:
+
+networks:
+  wiki-network:
