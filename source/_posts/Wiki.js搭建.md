@@ -1,7 +1,7 @@
 ---
 title: wiki.js搭建
-date: 2025年11月10日 时:分:秒
-tags: [cloudflare, hexo, markdown]
+date: 2025-11-10
+tags: [wiki.js]
 categories: [技术分享]
 ---
 services:
