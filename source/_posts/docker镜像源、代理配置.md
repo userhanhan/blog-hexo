@@ -169,4 +169,33 @@ Environment="HTTPS_PROXY=http://127.0.0.1:7890"
         }
     }
     ```
+
     修改后同样需要重启Docker服务。
+
+### 🔧 删除代理
+
+1.  **移除代理配置**
+    您可以通过以下任意一种方式移除代理配置：
+    *   **删除配置文件**：直接删除之前创建的代理配置文件。
+        ```bash
+        sudo rm /etc/systemd/system/docker.service.d/http-proxy.conf
+        ```
+    *   **清空配置文件内容**：如果该文件中还有其他重要配置，您可以只清空代理设置。使用文本编辑器（如 `vi` 或 `nano`）打开文件，将 `[Service]` 部分下的 `Environment` 行删除或注释掉（在行首添加 `#` 号）。
+    *   **临时禁用（推荐用于测试）**：如果您只是想暂时关闭代理，而不是永久删除配置，可以将配置文件重命名，例如加上 `.bak` 后缀。这在您未来可能还需要使用代理时会非常方便。
+        ```bash
+        sudo mv /etc/systemd/system/docker.service.d/http-proxy.conf /etc/systemd/system/docker.service.d/http-proxy.conf.bak
+        ```
+
+2.  **重新加载配置并重启Docker服务**
+    **这是关键的一步**。只要修改了 Docker 守护进程的配置，就必须执行以下命令来重新加载 systemd 配置并完全重启 Docker 服务，更改才能生效。
+    ```bash
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker
+    ```
+
+3.  **验证代理是否已移除**
+    配置重启后，您可以验证代理设置是否已清除。执行以下命令检查 Docker 的环境变量：
+    ```bash
+    sudo systemctl show --property=Environment docker
+    ```
+    如果输出结果中不再显示 `HTTP_PROXY` 和 `HTTPS_PROXY` 环境变量，或者其值为空，即表示代理配置已成功移除。
